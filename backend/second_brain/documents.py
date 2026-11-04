@@ -4,12 +4,18 @@ TYPES={'referral':'Referral letter','patient_handout':'Patient information sheet
 FIELDS={'age':'Age at encounter','sex':'Recorded sex','diagnosis':'Recorded diagnosis','stage':'Clinician-recorded stage','site':'Site','pathology':'Pathology','imaging':'Imaging','allergies':'Allergies','medications':'Current medicines','comorbidities':'Other conditions','prior_treatment':'Prior treatment','performance_status':'Performance status','mdt_plan':'Clinician-recorded MDT plan','follow_up':'Follow-up arrangements'}
 
 def digest(payload): return hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':')).encode()).hexdigest()
-def make_draft(case_id,case_data,kind,sources):
+def make_draft(case_id,case_data,kind,sources,template=None):
     facts=case_data['facts']; paragraphs=[]
     def add(title,text,refs=[],clinical=True):
         paragraphs.append({'id':f'p{len(paragraphs)+1}','title':title,'text':text,'original':text,'source_ids':refs,'citation_status':'case_fact' if clinical else 'not_applicable','review_status':'pending'})
     ref='snapshot:'+str(case_id)
-    if kind=='referral':
+    if template:
+        for key in template.fields:
+            value = facts.get(key, '').strip()
+            if not value or value.lower().startswith('not recorded'):
+                value = f'[MISSING: {FIELDS[key]}]'
+            add(FIELDS[key], value, [ref])
+    elif kind=='referral':
         add('Purpose','Referral for review of the documented oncology history and clinician-recorded MDT plan.',[],False)
         for key in ['age','sex','diagnosis','site','stage','pathology','imaging','prior_treatment','allergies','medications','comorbidities','performance_status','mdt_plan','follow_up']:
             add(FIELDS[key],facts.get(key) or f'[MISSING: {FIELDS[key]}]',[ref])
@@ -25,7 +31,7 @@ def make_draft(case_id,case_data,kind,sources):
     # Longitudinal source excerpts are copied exactly, never interpreted.
     for source in sources:
         add('Reviewed history · '+source['title'],source['text'],[source['id']])
-    return {'paragraphs':paragraphs,'case_snapshot':case_data,'case_revision':case_data.get('revision',1),'engine':'Deterministic templates · no LLM','type':kind,'missing':[label for key,label in FIELDS.items() if not facts.get(key)],'references':{ref:{'title':'Frozen clinician-confirmed case facts','text':json.dumps(case_data,indent=2)},**{s['id']:{'title':s['title'],'text':s['text']} for s in sources}}}
+    return {**({'template_title': template.title, 'required_fields': template.fields} if template else {}), 'paragraphs':paragraphs,'case_snapshot':case_data,'case_revision':case_data.get('revision',1),'engine':'Deterministic templates · no LLM','type':kind,'missing':[label for key,label in FIELDS.items() if not facts.get(key)],'references':{ref:{'title':'Frozen clinician-confirmed case facts','text':json.dumps(case_data,indent=2)},**{s['id']:{'title':s['title'],'text':s['text']} for s in sources}}}
 
 def readability(paragraphs):
     text=' '.join(p['text'] for p in paragraphs)

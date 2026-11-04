@@ -110,3 +110,12 @@ A separate integration workspace is available at `../care-sandbox`. It runs actu
 ## Hosted submission
 
 Container and Render Blueprint configuration are available. See [deployment and submission instructions](docs/DEPLOYMENT.md). Public deployment is pending; the Blueprint runs the standalone MVP, not the CARE host.
+
+### Case readiness and AI Evidence Reviewer
+
+- **Case readiness** shows confirmed, missing and review-needed fields for the selected document. It compares explicitly labeled entries across same-day sources and compares the current record with the last approved draft.
+- **My review queue** lets a case owner assign a read-only review of a specific revision to another clinician. The reviewer can mark it reviewed or request changes. A newer case revision invalidates the assignment. To provision a second account on a synthetic demo instance, set a distinct `SECOND_BRAIN_REVIEWER_PASSWORD` before startup. The seeded username is `demo-reviewer`. Keep the owner and reviewer passwords separate.
+- **Reusable templates** let a clinician choose required fields and draft across their own cases. Required sections still need review and acceptance before approval.
+- **AI Evidence Reviewer** uses a pinned [DeBERTa NLI model](https://huggingface.co/cross-encoder/nli-deberta-v3-xsmall) to classify three pairs of bundled fictional excerpts. The hosted app serves the model outputs generated offline. It does not run inference on demand or take user input. Raw records, uploads and CARE data are excluded from this model path. The displayed review questions are authored prompts, and the model cannot edit case facts or approve documents.
+
+To reproduce the evidence results, use Python 3.12 with `onnxruntime==1.23.2` and `tokenizers==0.22.1`. Download `config.json`, `tokenizer.json`, and the platform-appropriate quantized ONNX weights from model revision `a150876415327c80daeff35ca6f68f5ed8cf5c24`. Rename the weights `model.onnx` in that directory and run `python scripts/build_evidence_review.py /path/to/model-directory`. The checked-in results were generated with `onnx/model_qint8_arm64.onnx`. The three examples demonstrate the feature and do not measure model accuracy.

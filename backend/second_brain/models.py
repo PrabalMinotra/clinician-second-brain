@@ -49,3 +49,28 @@ class DraftRevision(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     class Meta:
         constraints=[models.UniqueConstraint(fields=['draft','revision'],name='unique_draft_revision')]
+
+
+class ReviewTask(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='review_tasks')
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    case_revision = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, default='pending')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['case'], condition=models.Q(status='pending'),
+                                    name='one_pending_case_review'),
+        ]
+
+
+class DocumentTemplate(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=80)
+    fields = models.JSONField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['owner', 'title'], name='unique_owner_template'),
+        ]

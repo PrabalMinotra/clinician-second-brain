@@ -1,0 +1,26 @@
+[
+  {
+    "topic": "Was the outside imaging report received?",
+    "sources": [
+      {"title": "Synthetic referral checklist", "text": "The outside imaging report was received before the tumour board meeting."},
+      {"title": "Synthetic coordinator checklist", "text": "The outside imaging report had not been received before the tumour board meeting."}
+    ],
+    "review_question": "Which record accurately describes whether the report had arrived before the meeting?"
+  },
+  {
+    "topic": "Was the referral sent?",
+    "sources": [
+      {"title": "Synthetic referral log", "text": "The clinic sent the referral letter to the receiving hospital."},
+      {"title": "Synthetic handoff note", "text": "The referral letter was dispatched to the receiving hospital by the clinic."}
+    ],
+    "review_question": "Do both notes describe the same referral?"
+  },
+  {
+    "topic": "Is receipt documented?",
+    "sources": [
+      {"title": "Synthetic dispatch note", "text": "The clinic sent the referral letter to the receiving hospital."},
+      {"title": "Synthetic scheduling note", "text": "The tumour board meeting was scheduled for the following week."}
+    ],
+    "review_question": "Is there a separate acknowledgement from the receiving hospital?"
+  }
+]

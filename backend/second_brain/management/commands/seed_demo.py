@@ -16,7 +16,15 @@ class Command(BaseCommand):
             path=settings.RUNTIME/'demo-login.txt'
             fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
             with os.fdopen(fd,'w') as f: f.write('Username: clinician\nPassword: '+password+'\n')
-        user.groups.add(Group.objects.get_or_create(name='second_brain_clinicians')[0])
+        group, _ = Group.objects.get_or_create(name='second_brain_clinicians')
+        user.groups.add(group)
+        reviewer_password = os.environ.get('SECOND_BRAIN_REVIEWER_PASSWORD')
+        if reviewer_password:
+            reviewer, created = User.objects.get_or_create(username='demo-reviewer')
+            if created:
+                reviewer.set_password(reviewer_password)
+                reviewer.save(update_fields=['password'])
+                reviewer.groups.add(group)
         if Case.objects.filter(owner=user).exists(): self.stdout.write('Existing demo kept unchanged.');return
         fixture=json.loads((settings.BASE_DIR/'fixtures'/'synthetic-oral-scc-001.json').read_text())
         case=Case.objects.create(owner=user,alias=fixture['alias'],is_synthetic=True,payload=seal(fixture['case']))

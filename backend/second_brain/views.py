@@ -169,11 +169,17 @@ def generate(request,id):
         if not case.is_synthetic or not p.get('confirmed'): return error('Confirm synthetic case facts before drafting.')
         if case.sources.filter(status='pending').exists(): return error('Review or reject all pending sources before drafting.',409)
         if not p.get('facts',{}).get('diagnosis') or not p.get('facts',{}).get('mdt_plan'): return error('Provide the clinician-recorded diagnosis and MDT plan. The system cannot infer them.')
-        types=data.get('document_types',list(TYPES))
-        if not isinstance(types,list) or not types or any(t not in TYPES for t in types) or len(set(types))!=len(types): return error('Unsupported or duplicate document type.')
+        template = None
+        if 'template_id' in data:
+            from .models import DocumentTemplate
+            if type(data['template_id']) is not int:
+                return error('Choose a saved template.')
+            template = get_object_or_404(DocumentTemplate, id=data['template_id'], owner=request.user)
+        types = ['custom'] if template else data.get('document_types', list(TYPES))
+        if not isinstance(types,list) or not types or any(not isinstance(t,str) or (t not in TYPES and not template) for t in types) or len(set(types))!=len(types): return error('Unsupported or duplicate document type.')
         sources=[source_json(s) for s in case.sources.filter(status='accepted')];p['revision']=case.revision
         for kind in types:
-            payload=make_draft(case.id,p,kind,sources)
+            payload=make_draft(case.id,p,kind,sources,template)
             d=Draft.objects.create(case=case,doc_type=kind,payload=seal(payload))
             audit(request,case,'draft_generated',draft_id=str(d.id),engine='template',case_revision=case.revision)
         return JsonResponse(detail(case),status=201)
@@ -208,6 +214,10 @@ def approve(request,id,draft_id):
         if case.sources.filter(status='pending').exists(): return error('Review pending history sources first.',409)
         if data.get('attest') is not True: return error('Clinical accuracy and privacy attestation required.')
         if any(x['review_status']=='pending' for x in p['paragraphs']): return error('Review every paragraph before approval.',409)
+        for field in p.get('required_fields', []):
+            paragraph = next((x for x in p['paragraphs'] if x['title'] == FIELDS[field]), None)
+            if not paragraph or paragraph['review_status'] != 'accepted':
+                return error('Review and accept every required template section.', 409)
         included=[x for x in p['paragraphs'] if x['review_status']=='accepted']
         if not included: return error('Cannot approve an empty document.',409)
         if any('[MISSING:' in x['text'] for x in included): return error('Resolve or reject paragraphs with missing facts before approval.',409)
@@ -221,7 +231,7 @@ def export(request,id,draft_id):
     with transaction.atomic():
         case=case_for(request,id,True);d=get_object_or_404(Draft,case=case,id=draft_id);p=unseal(d.payload)
         if d.status!='approved' or not secrets.compare_digest(d.approved_hash,digest(p)) or p['case_revision']!=case.revision or case.sources.filter(status='pending').exists(): return error('Export blocked: the current document and history must have matching clinician approval.',409)
-        text=f"SYNTHETIC CASE — HACKATHON PROTOTYPE\n{TYPES[d.doc_type]}\nCase: {case.alias}\nApproved by: {d.approved_by.username} | {d.approved_at.isoformat()}\nRevision: {d.revision} | SHA-256: {d.approved_hash}\n\n"
+        text=f"SYNTHETIC CASE — HACKATHON PROTOTYPE\n{p.get('template_title') or TYPES.get(d.doc_type, 'Custom document')}\nCase: {case.alias}\nApproved by: {d.approved_by.username} | {d.approved_at.isoformat()}\nRevision: {d.revision} | SHA-256: {d.approved_hash}\n\n"
         for para in p['paragraphs']:
             if para['review_status']=='accepted': text+=para['title']+'\n'+para['text']+'\nSources: '+(', '.join(para['source_ids']) or 'Administrative text')+'\n\n'
         text+='SOURCE REGISTER\n'
