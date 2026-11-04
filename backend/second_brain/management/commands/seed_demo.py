@@ -10,7 +10,9 @@ class Command(BaseCommand):
     def handle(self,*args,**options):
         user,created=User.objects.get_or_create(username='clinician')
         if created:
-            password=secrets.token_urlsafe(18);user.set_password(password);user.save()
+            password = os.environ.get('SECOND_BRAIN_DEMO_PASSWORD') or secrets.token_urlsafe(18)
+            user.set_password(password)
+            user.save()
             path=settings.RUNTIME/'demo-login.txt'
             fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
             with os.fdopen(fd,'w') as f: f.write('Username: clinician\nPassword: '+password+'\n')
