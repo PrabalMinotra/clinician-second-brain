@@ -1,0 +1,21 @@
+# Standalone synthetic MVP. This does not deploy the CARE host.
+services:
+  - type: web
+    name: clinician-second-brain
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    disk:
+      name: second-brain-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: HOSTED_DEMO
+        value: "1"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: SECOND_BRAIN_KEY
+        sync: false
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false

@@ -1,0 +1,52 @@
+{
+  "alias": "SYN-ONC-001",
+  "is_synthetic": true,
+  "fixture_notice": "All event dates are fictional demonstration dates. Clinical facts copied from the supplied oral-cancer worked example. Unknown values are explicitly not recorded. No real patient.",
+  "case": {
+    "confirmed": true,
+    "meeting_date": "2026-10-23",
+    "attendees": "Not recorded in the supplied worked example",
+    "facts": {
+      "age": "56 years (synthetic worked example)",
+      "sex": "Male, as recorded in the supplied example",
+      "diagnosis": "Oral tongue squamous cell carcinoma (SCC), moderately differentiated. Clinician-supplied worked-example diagnosis.",
+      "stage": "cT2 N1 M0",
+      "site": "Right lateral border of tongue",
+      "pathology": "Moderately differentiated squamous cell carcinoma, as recorded in the synthetic worked example. Full pathology report not supplied.",
+      "imaging": "MRI: 3.1 cm right lateral tongue lesion; depth of invasion approximately 9 mm; suspicious ipsilateral level II node. CT chest: no distant metastasis reported in the supplied example.",
+      "allergies": "Not recorded. Do not assume no known allergies.",
+      "medications": "Not recorded. Medication reconciliation required by the clinician.",
+      "comorbidities": "Not recorded.",
+      "prior_treatment": "Not recorded. The MDT plan does not establish that treatment has occurred.",
+      "performance_status": "Not recorded.",
+      "mdt_plan": "Clinician-recorded MDT plan: right hemiglossectomy with adequate margins, ipsilateral selective neck dissection (levels I\u2013IV), free-flap reconstruction, and histopathology-guided adjuvant radiotherapy. The supplied MDT note records consideration of concurrent cisplatin-based chemoradiotherapy if adverse pathological features are found. This is copied clinician input, not a system recommendation.",
+      "follow_up": "Not recorded. Receiving department, appointment date and contact details require clinician confirmation."
+    }
+  },
+  "sources": [
+    {
+      "title": "Recorded pathology summary",
+      "category": "Pathology",
+      "date": "2026-10-15",
+      "text": "SYNTHETIC WORKED EXAMPLE. Moderately differentiated squamous cell carcinoma of the right lateral tongue. Full pathology report not supplied. Date is fictional for demonstration."
+    },
+    {
+      "title": "MRI \u00b7 documented tongue and neck findings",
+      "category": "Imaging report",
+      "date": "2026-10-18",
+      "text": "SYNTHETIC WORKED EXAMPLE. MRI documents a 3.1 cm right lateral tongue lesion, depth of invasion approximately 9 mm, and a suspicious ipsilateral level II node. Copied report text only; no image interpretation. Date is fictional for demonstration."
+    },
+    {
+      "title": "CT chest \u00b7 recorded report summary",
+      "category": "Imaging report",
+      "date": "2026-10-20",
+      "text": "SYNTHETIC WORKED EXAMPLE. CT chest: no distant metastasis, as documented in the supplied case note. Original radiology images and full report not supplied. Date is fictional for demonstration."
+    },
+    {
+      "title": "Tumour-board consensus \u00b7 clinician-recorded plan",
+      "category": "Clinical note",
+      "date": "2026-10-23",
+      "text": "SYNTHETIC WORKED EXAMPLE. Recorded stage: cT2 N1 M0. MDT plan: right hemiglossectomy with adequate margins and ipsilateral selective neck dissection (levels I\u2013IV), free-flap reconstruction, and histopathology-guided adjuvant radiotherapy. Consider concurrent cisplatin-based chemoradiotherapy if adverse pathological features are found. This is the clinician's recorded plan, not a new recommendation. Attendees were not supplied. Date is fictional for demonstration."
+    }
+  ]
+}

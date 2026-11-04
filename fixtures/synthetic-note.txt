@@ -1,0 +1,10 @@
+SYNTHETIC RECORD - NOT A REAL PATIENT
+Patient name: Fictional Demo Person
+Email: fictional@example.com
+Phone: 9876543210
+
+MDT note | 24 October 2026
+Recorded diagnosis: oral tongue SCC
+Recorded stage: cT2 N1 M0
+Plan: Refer to the clinician-recorded MDT plan.
+This note does not establish that treatment occurred.
